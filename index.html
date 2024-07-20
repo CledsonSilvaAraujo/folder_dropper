@@ -29,24 +29,32 @@
             event.preventDefault();
             event.stopPropagation();
             const items = event.dataTransfer.items;
+            const files = [];
             for (let i = 0; i < items.length; i++) {
                 const item = items[i].webkitGetAsEntry();
                 if (item.isDirectory) {
-                    traverseFileTree(item);
+                    traverseFileTree(item, '', files);
+                } else {
+                    item.file((file) => {
+                        files.push(file);
+                    });
                 }
             }
+            setTimeout(() => {
+                window.parent.postMessage(files, '*');
+            }, 1000);
         });
 
-        function traverseFileTree(item, path = '') {
+        function traverseFileTree(item, path = '', files) {
             if (item.isFile) {
                 item.file((file) => {
-                    console.log('File:', path + file.name);
+                    files.push(file);
                 });
             } else if (item.isDirectory) {
                 const dirReader = item.createReader();
                 dirReader.readEntries((entries) => {
                     for (let i = 0; i < entries.length; i++) {
-                        traverseFileTree(entries[i], path + item.name + '/');
+                        traverseFileTree(entries[i], path + item.name + '/', files);
                     }
                 });
             }
