@@ -34,6 +34,7 @@
                 const item = items[i].webkitGetAsEntry();
                 if (item.isDirectory) {
                     traverseFileTree(item, '', files);
+                    console.log('item.isDirectory', item);
                 } else {
                     item.file((file) => {
                         files.push(file);
